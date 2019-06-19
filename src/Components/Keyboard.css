@@ -1,0 +1,118 @@
+.Keyboard {
+  position: absolute;
+  bottom: 2em;
+  width: 100%;
+  height: 130px;
+
+  display: flex;
+  justify-content: center;
+}
+
+.Keyboard > div {
+  display: grid;
+  grid-gap: 4px;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(2, 2fr);
+
+  width: 100%; 
+  max-width: 600px;
+  height: 100%;
+}
+
+.Keyboard button {
+  text-transform: uppercase;
+  font-size: 1.5em;
+  color: inherit;
+  background: hsl(0, 0%, 50%);
+  border: none;
+  border-radius: 4px;
+}
+
+
+
+.Keyboard-w {
+  grid-column: 2 / span 2;
+  grid-row: 1;
+}
+
+.Keyboard-e {
+  grid-column: 4 / span 2;
+  grid-row: 1;
+}
+
+.Keyboard-t {
+  grid-column: 8 / span 2;
+  grid-row: 1;
+}
+
+.Keyboard-y {
+  grid-column: 10 / span 2;
+  grid-row: 1;
+}
+
+.Keyboard-u {
+  grid-column: 12 / span 2;
+  grid-row: 1;
+}
+
+.Keyboard-o {
+  grid-column: 16 / span 2;
+  grid-row: 1;
+}
+
+.Keyboard-p {
+  grid-column: 18 / span 2;
+  grid-row: 1;
+}
+
+
+
+.Keyboard-a {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-s {
+  grid-column: 3 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-d {
+  grid-column: 5 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-f {
+  grid-column: 7 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-g {
+  grid-column: 9 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-h {
+  grid-column: 11 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-j {
+  grid-column: 13 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-k {
+  grid-column: 15 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-l {
+  grid-column: 17 / span 2;
+  grid-row: 2;
+}
+
+.Keyboard-\; {
+  grid-column: 19 / span 2;
+  grid-row: 2;
+}
