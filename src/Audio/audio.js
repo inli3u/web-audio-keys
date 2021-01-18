@@ -100,12 +100,14 @@ class NodeGate {
 
 
 const oscGate = new NodeGate();
+const ZERO_GAIN = 0;
 
 const nodes = {
     osc1: null,
     osc1gain: null,
     osc2: null,
     osc2gain: null,
+    ampGain: null,
     filter: null,
     delay: null,
     delayGain: null,
@@ -118,6 +120,7 @@ function initNodes() {
 
     nodes.osc1gain = audioCtx.createGain();
     nodes.osc2gain = audioCtx.createGain();
+    nodes.ampGain = audioCtx.createGain();
 
     nodes.filter = audioCtx.createBiquadFilter();
 
@@ -134,19 +137,20 @@ function initNodes() {
 }
 
 function initParams() {
-    nodes.osc1.type = 'sawtooth';
-    nodes.osc1.detune.value = -1210;
-    nodes.osc2.type = 'square';
+    nodes.osc1.type = 'square';
+    nodes.osc2.type = 'sawtooth';
+    //nodes.osc2.detune.value = -1200;
 
-    nodes.osc1gain.gain.value = 0.2;
-    nodes.osc2gain.gain.value = 0.1;
+    nodes.osc1gain.gain.value = 0.25;
+    nodes.osc2gain.gain.value = 0.25;
+    nodes.ampGain.gain.value = ZERO_GAIN;
 
     nodes.filter.type = 'lowpass';
     nodes.filter.frequency.value = 800;
     nodes.filter.Q.value = 10;
 
-    nodes.delay.delayTime.value = 0.4;
-    nodes.delayGain.gain.value = 0.3;
+    nodes.delay.delayTime.value = 0.06;
+    nodes.delayGain.gain.value = 0.5;
 
     nodes.analyzer.fftSize = Math.pow(2, 10);
     nodes.analyzer.minDecibels = -90;
@@ -154,21 +158,39 @@ function initParams() {
 }
 
 function initGraph() {
-    oscGate.add(nodes.osc1, nodes.osc1gain);
-    oscGate.add(nodes.osc2, nodes.osc2gain);
+    //oscGate.add(nodes.osc1, nodes.osc1gain);
+    //oscGate.add(nodes.osc2, nodes.osc2gain);
+    nodes.osc1.connect(nodes.osc1gain);
+    nodes.osc2.connect(nodes.osc2gain);
 
     nodes.osc1gain.connect(nodes.filter);
     nodes.osc2gain.connect(nodes.filter);
 
-    nodes.filter.connect(audioCtx.destination);
-    nodes.filter.connect(nodes.delay);
+    nodes.filter.connect(nodes.ampGain);
 
+    nodes.ampGain.connect(audioCtx.destination);
+
+    nodes.ampGain.connect(nodes.delay);
     nodes.delay.connect(nodes.delayGain);
     nodes.delayGain.connect(audioCtx.destination);
     nodes.delayGain.connect(nodes.delay);
-    //nodes.delayGain.connect(nodes.filter);
 
-    nodes.filter.connect(nodes.analyzer);
+    nodes.ampGain.connect(nodes.analyzer);
+}
+
+function triggerADS(param, a, av, d, s) {
+    let now = audioCtx.currentTime;
+    param.cancelScheduledValues(now);
+    param.setValueAtTime(param.value, now);
+    param.linearRampToValueAtTime(av, now + a);
+    param.linearRampToValueAtTime(s, now + a + d);
+}
+
+function triggerR(param, r, value) {
+    let now = audioCtx.currentTime;
+    param.cancelScheduledValues(now);
+    param.setValueAtTime(param.value, now);
+    param.linearRampToValueAtTime(value, now + r);
 }
 
 
@@ -298,7 +320,6 @@ function initControls() {
 
 
 let oscillators = [];
-let oscStarted = false; // should be a property of OSC section.
 
 function oscStart(note) {
     let freq = Midi.freqFromNote(note);
@@ -306,17 +327,13 @@ function oscStart(note) {
         o.frequency.setValueAtTime(freq, audioCtx.currentTime);
     }
 
-    oscGate.connect();
-
-    oscStarted = true;
+    triggerADS(nodes.ampGain.gain, 0.01, 1, 0.1, 0.8);
+    triggerADS(nodes.filter.frequency, 1, 1500, 0.8, 330);
 }
 
 function oscStop() {
-    if (!oscStarted) return;
-
-    oscGate.disconnect();
-
-    oscStarted = false;
+    triggerR(nodes.ampGain.gain, 0.2, ZERO_GAIN);
+    triggerR(nodes.filter.frequency, 0.1, 330);
 }
 
 
