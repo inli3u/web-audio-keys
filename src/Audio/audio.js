@@ -73,6 +73,7 @@ let audioCtx = null;
 let control = {};
 
 
+// eslint-disable-next-line no-unused-vars
 class NodeGate {
     constructor() {
         this.pairs = [];
@@ -99,7 +100,7 @@ class NodeGate {
 
 
 
-const oscGate = new NodeGate();
+//const oscGate = new NodeGate();
 const ZERO_GAIN = 0;
 
 const nodes = {
@@ -282,7 +283,6 @@ function addControlGroup(name, label, cb) {
 
 function addRange(group, name, label, min, max, value) {
     let id = group + '-' + name;
-    let fieldset = document.getElementById(group);
     let labelElm = document.createElement('label');
     let input = document.createElement('input');
 
@@ -303,9 +303,6 @@ function addRange(group, name, label, min, max, value) {
     input.max = max;
     input.value = value;
     input.addEventListener('change', (e) => updateControlValue(input.value));
-
-    // fieldset.append(labelElm);
-    // fieldset.append(input);
 }
 
 function initControls() {

@@ -21,6 +21,8 @@ export default function Analyzer(props) {
 
     // Cleanup.
     return () => cancelAnimationFrame(cancel);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -65,7 +67,7 @@ function draw(canvas, ctx, audio, samples) {
 }
 
 
-
+// eslint-disable-next-line no-unused-vars
 function useAnimationFrame() {
   useEffect(() => {
       let animationFrame = null;
@@ -80,6 +82,8 @@ function useAnimationFrame() {
       // Clean things up
       return () => cancelAnimationFrame(animationFrame);
     },
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     true // Only run once (value is static and doesn't change)
   );
 }
