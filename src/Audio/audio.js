@@ -227,6 +227,14 @@ export class AudioEngine {
         if (!nodes.analyzer.getFloatTimeDomainData) return;
         nodes.analyzer.getFloatTimeDomainData(samples);
     }
+
+    getCurrentFreq() {
+        return oscillators[0]?.frequency.value;
+    }
+
+    getSampleRate() {
+        return audioCtx?.sampleRate ?? 0;
+    }
 }
 
 export function main() {
