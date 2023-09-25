@@ -32,76 +32,16 @@ export default function Analyzer(props) {
   );
 }
 
-
-function getSamplesBasic(audio, samples) {
-  audio.getFloatTimeDomainData(samples);
-
-  const skip = 5;
-
-  let min = Number.MAX_VALUE;
-  let max = Number.MIN_VALUE;
-  let minIndex;
-  for (let i = 0; i < samples.length * 0.75; i += 5) {
-    // if (samples[i] > max) max = samples[i];
-    // if (samples[i] < min) min = samples[i];
-
-    if (samples[i] < min) {
-      min = samples[i];
-      minIndex = i;
-    }
-  }
-
-  return [minIndex, samples.length - 1];
-
-  // let between = [];
-  // let found = false;
-  // for (let i = 0; i < samples.length; i += 1) {
-  //   if (!found && samples[i] === min) {
-  //     between.push(i);
-  //     found = true;
-  //   } else if (found && samples[i] > min) {
-  //     found = false;
-  //   }
-
-  //   if (between.length >= 2) {
-  //     break;
-  //   }
-  // }
-
-  // let [beginIndex, endIndex] = between;
-
-  // let start = 0;
-  // let longestStart = 0;
-  // let longestDist = 0;
-  // let bottom = false;
-  // for (var i = 0; i < samples.length; i += 1) {
-  //   if (!bottom && samples[i] <= min * 0.98) {
-  //     start = i;
-  //     bottom = true;
-  //   } else if (bottom && samples[i] >= max * 0.98) {
-  //     const dist = i - start;
-  //     if (dist > longestDist) {
-  //       longestDist = dist;
-  //       longestStart = i;
-  //     }
-  //     bottom = false;
-  //   }
-  // }
-}
-
 function getSamplesForNote(audio, samples) {
-  const skip = 1;
-
   const freq = audio.getCurrentFreq();
   const samplesPerCycle = Math.floor(audio.getSampleRate() / freq);
-  console.log('samplesPerCycle', samplesPerCycle);
 
   // Don't go past end of array
   const limit = Math.min(samplesPerCycle, samples.length - 1);
 
   let min = Number.MAX_VALUE;
   let minIndex;
-  for (let i = 0; i <= limit; i += skip) {
+  for (let i = 0; i <= limit; i += 1) {
     if (samples[i] < min) {
       min = samples[i];
       minIndex = i;
@@ -113,27 +53,41 @@ function getSamplesForNote(audio, samples) {
 
 function draw(canvas, ctx, audio, samples) {
   audio.getFloatTimeDomainData(samples);
-  
-  // const [begin, end] = getSamplesBasic(audio, samples);
-  const [begin, end] = getSamplesForNote(audio, samples);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (samples[0] === 0) return;
+  
 
-  // canvas.width = canvas.clientWidth;
-  // canvas.height = canvas.clientHeight;
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = window.noteColor;
-  ctx.beginPath();
+  // Find cycle start / end
 
   const freq = audio.getCurrentFreq();
   const samplesPerCycle = Math.floor(audio.getSampleRate() / freq);
+
+  // Don't go past end of array
+  const limit = Math.min(samplesPerCycle, samples.length - 1);
+
+  let min = Number.MAX_VALUE;
+  let minIndex;
+  for (let i = 0; i <= limit; i += 1) {
+    if (samples[i] < min) {
+      min = samples[i];
+      minIndex = i;
+    }
+  }
+  const maxIndex = minIndex + samplesPerCycle;
+  
+
+  // Draw samples
+
   const SAMPLES_PER_PIXEL = 3;
   const xStep = 2;
   const iStep = SAMPLES_PER_PIXEL * xStep;
   let x = 0;
+  let i = minIndex;
 
-  let i = begin;
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = window.noteColor;
+  ctx.beginPath();
   while (x <= canvas.width) {
     const ii = i < samples.length ? i : i - samplesPerCycle;
     const v = samples[ii] * (canvas.height / 2);
@@ -147,8 +101,8 @@ function draw(canvas, ctx, audio, samples) {
 
     x += xStep;
     i += iStep;
-    if (i > end) {
-      i = begin;
+    if (i > maxIndex) {
+      i = minIndex;
     }
   }
 
