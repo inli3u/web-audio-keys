@@ -37,6 +37,33 @@ export default function Analyzer(props) {
 function draw(canvas, ctx, audio, samples) {
   audio.getFloatTimeDomainData(samples);
 
+  const skip = 5;
+
+  let min = Number.MAX_VALUE;
+  let max = Number.MIN_VALUE;
+  for (var i = 0; i < samples.length; i += 1) {
+    if (samples[i] > max) max = samples[i];
+    if (samples[i] < min) min = samples[i];
+  }
+
+  let start = 0;
+  let longestStart = 0;
+  let longestDist = 0;
+  let bottom = false;
+  for (var i = 0; i < samples.length; i += 1) {
+    if (!bottom && samples[i] === min) {
+      start = i;
+      bottom = true;
+    } else if (bottom && samples[i] === max) {
+      const dist = i - start;
+      if (dist > longestDist) {
+        longestDist = dist;
+        longestStart = i;
+      }
+      bottom = false;
+    }
+  }
+
   //ctx.fillStyle = 'rgb(200, 200, 200)';
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (samples[0] === 0) return;
@@ -49,13 +76,12 @@ function draw(canvas, ctx, audio, samples) {
 
   var sliceWidth = canvas.width * 1.0 / samples.length;
   var x = 0;
-  const skip = 5;
 
-  for (var i = 0; i < samples.length; i += skip) {
+  for (var i = longestStart; i < samples.length; i += skip) {
     var v = samples[i] * (canvas.height / 2);
     var y = canvas.height / 2 + v;
 
-    if(i === 0) {
+    if(i === longestStart) {
       ctx.moveTo(x, y);
     } else {
       ctx.lineTo(x, y);
