@@ -9,7 +9,7 @@ function App(props) {
     <div className="App">
       <h1 className="App-title">Web Audio Synth</h1>
       <Analyzer audio={props.audio} />
-      <Keyboard />
+      <Keyboard audio={props.audio} />
     </div>
   );
 }

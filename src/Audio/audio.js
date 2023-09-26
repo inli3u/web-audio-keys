@@ -262,18 +262,11 @@ function initAudio() {
 }
 
 function handleKeyDown(e) {
-    // Can only initialize audio after user input.
-    if (!init) main();
-
-    let midiEvent = VirtualKeyboard.keyDown(e.key);
-    if (!midiEvent) return;
-    handleMidi(midiEvent);
+    VirtualKeyboard.keyDown(e.key);
 }
 
 function handleKeyUp(e) {
-    let midiEvent = VirtualKeyboard.keyUp(e.key);
-    if (!midiEvent) return;
-    handleMidi(midiEvent);
+    VirtualKeyboard.keyUp(e.key);
 }
 
 
@@ -377,26 +370,51 @@ const Midi = {
 
     freqFromNote: function(note) {
         return 440 * Math.pow(2, (note - 69) / 12);
-    }
-}
+    },
+
+    noteOn(note, velocity) {
+        if (!note) {
+            return null;
+        }
+
+        return [Midi.NOTE_ON, note, velocity];
+    },
+
+    noteOff(note, velocity) {
+        if (!note) {
+            return null;
+        }
+        
+        return [Midi.NOTE_OFF, note, velocity];
+    },
+};
 
 
 // TODO track and debounce keys here instead of in noteStart... or both!
-const VirtualKeyboard = {
+export const VirtualKeyboard = {
     velocity: 100,
     
     keyDown: function(key) {
-        let note = VirtualKeyboard.noteFromKey(key, control.keyboard.octave);
-        if (note === null) return;
+        // Can only initialize audio after user input.
+        if (!init) main();
 
-        return [Midi.NOTE_ON, note, VirtualKeyboard.velocity];
+        let midiEvent = Midi.noteOn(
+            VirtualKeyboard.noteFromKey(key, control.keyboard.octave),
+            VirtualKeyboard.velocity
+        );
+
+        if (!midiEvent) return;
+        handleMidi(midiEvent);
     },
 
     keyUp: function(key) {
-        let note = VirtualKeyboard.noteFromKey(key, control.keyboard.octave);
-        if (note === null) return;
-        
-        return [Midi.NOTE_OFF, note, VirtualKeyboard.velocity];
+        let midiEvent = Midi.noteOff(
+            VirtualKeyboard.noteFromKey(key, control.keyboard.octave),
+            VirtualKeyboard.velocity
+        );
+
+        if (!midiEvent) return;
+        handleMidi(midiEvent);
     },
 
     noteFromKey: function(key, octave) {
